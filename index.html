@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Fridge Simulator</title>
+<style>
+:root{--bg:#101418;--card:#182028;--line:#28343f;--ink:#e8eef3;--dim:#8796a2;--accent:#7fd4e8;--bad:#e0705e;--good:#8fd18f}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:ui-monospace,SFMono-Regular,Menlo,monospace;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:34px 18px}
+h1{font-size:24px;letter-spacing:6px;color:var(--accent);text-shadow:0 0 22px rgba(127,212,232,.25)}
+.sub{color:var(--dim);font-size:11px;letter-spacing:2.5px;margin-top:8px;text-transform:uppercase}
+#fridge{margin:22px 0;width:min(420px,92vw);background:linear-gradient(#d7dde2,#b9c2c9);border-radius:16px;padding:16px;box-shadow:0 18px 40px rgba(0,0,0,.5)}
+#inside{background:#f4f7f9;border-radius:10px;min-height:230px;padding:14px;display:flex;flex-wrap:wrap;gap:8px;align-content:flex-start;transition:background .5s}
+#inside.off{background:#2a3138}
+.item{font-size:30px;cursor:pointer;transition:transform .15s;position:relative}
+.item:hover{transform:scale(1.25)}
+.item .spoil{position:absolute;bottom:-2px;right:-2px;font-size:11px}
+#hud{display:flex;justify-content:space-between;margin-top:12px;font-size:11px;color:#3d4750;letter-spacing:1px;font-weight:700}
+#msg{font-size:12px;color:var(--dim);min-height:20px;letter-spacing:1px;text-align:center;line-height:1.8;width:min(440px,92vw)}
+#row{display:flex;gap:10px;margin:12px 0}
+button{cursor:pointer;background:var(--card);border:1px solid var(--line);border-radius:10px;color:var(--ink);font-family:inherit;font-size:12px;padding:11px 18px;letter-spacing:1px;transition:.15s}
+button:hover{border-color:var(--accent);transform:translateY(-2px)}
+#stats{margin-top:6px;font-size:11.5px;color:var(--dim);letter-spacing:1.5px}
+#stats b{color:var(--accent)}
+</style>
+</head>
+<body>
+<h1>FRIDGE SIMULATOR</h1>
+<div class="sub">you are the fridge. keep the food alive.</div>
+<div id="fridge">
+  <div id="inside"></div>
+  <div id="hud"><span id="temp">TEMP 37°F</span><span id="light">LIGHT ON</span></div>
+</div>
+<div id="row">
+  <button id="add">STOCK GROCERIES</button>
+  <button id="door">SLAM DOOR</button>
+  <button id="colder">COLDER</button>
+</div>
+<div id="msg">a fridge hums. somewhere, a light debates its existence.</div>
+<div id="stats">ITEMS <b id="n">0</b> &middot; FRESH <b id="fresh">0</b> &middot; LOST <b id="lost">0</b></div>
+<script>
+const ITEMS=[['🥛','milk'],['🥚','eggs'],['🧀','cheese'],['🥬','lettuce'],['🍗','chicken'],['🍓','berries'],['🥫','leftovers'],['🧈','butter'],['🍋','lemons'],['🥩','steak']];
+const $=id=>document.getElementById(id);
+const inside=$('inside');
+let temp=37,light=true,lost=0,count=0;
+const msgs=['a jar of pickles rolls judgmentally','the crisper drawer sticks, as is tradition','condensation forms. you are doing great','the butter compartment remains a mystery','something in the back predates the lease'];
+function stock(){
+  if(count>=12){$('msg').textContent='the fridge is full. physics says no.';return;}
+  const [e,name]=ITEMS[Math.floor(Math.random()*ITEMS.length)];
+  const d=document.createElement('div');d.className='item';d.textContent=e;
+  d.dataset.fresh=100;d.dataset.name=name;
+  d.onclick=()=>{const f=+d.dataset.fresh;
+    $('msg').textContent=f>40?name+' inspected: still good ('+f+'% fresh)':name+' inspected: questionable ('+f+'% fresh). toss it? click again to toss.';
+    if(f<=40){d.onclick=()=>{d.remove();count--;lost++;$('msg').textContent=name+' discarded with ceremony.';hud();};}};
+  inside.appendChild(d);count++;
+  $('msg').textContent=name+' stocked. the door shelf shifts to accommodate.';
+  hud();
+}
+function hud(){
+  $('n').textContent=count;$('lost').textContent=lost;
+  $('temp').textContent='TEMP '+temp+'°F';
+  $('light').textContent=light?'LIGHT ON':'LIGHT OFF';
+  let f=0;[...inside.children].forEach(c=>f+=+c.dataset.fresh);
+  $('fresh').textContent=count?Math.round(f/count)+'%':'-';
+}
+$('add').onclick=stock;
+$('door').onclick=()=>{light=!light;inside.classList.toggle('off',!light);$('msg').textContent=light?'the light returns. no one claps.':'darkness. the yogurts grow bolder.';hud();};
+$('colder').onclick=()=>{temp=Math.max(28,temp-2);$('msg').textContent=temp<=30?'everything is slightly frozen now, including the milk. oops.':'compressor hums harder.';hud();};
+setInterval(()=>{
+  const decay=temp<=33?0.4:temp<=38?1:2.5;
+  [...inside.children].forEach(c=>{
+    let f=Math.max(0,+c.dataset.fresh-decay);
+    c.dataset.fresh=Math.round(f);
+    if(f<=40&&!c.querySelector('.spoil')){const s=document.createElement('span');s.className='spoil';s.textContent='❄';c.appendChild(s);}
+    if(f<=0&&Math.random()<.3){c.remove();count--;lost++;}
+  });
+  if(Math.random()<.4)$('msg').textContent=msgs[Math.floor(Math.random()*msgs.length)];
+  hud();
+},2000);
+for(let i=0;i<5;i++)stock();
+</script>
+</body>
+</html>
