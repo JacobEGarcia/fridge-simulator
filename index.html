@@ -4,38 +4,43 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Fridge Simulator</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧊</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=DM+Serif+Display&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#101418;--card:#182028;--line:#28343f;--ink:#e8eef3;--dim:#8796a2;--accent:#7fd4e8;--bad:#e0705e;--good:#8fd18f}
+:root{--bg:#edf3f5;--ink:#17303a;--dim:#6e8791;--teal:#2a7f8f;--line:#d3e0e4;--card:#ffffff}
 *{margin:0;padding:0;box-sizing:border-box}
-body{background:var(--bg);color:var(--ink);font-family:ui-monospace,SFMono-Regular,Menlo,monospace;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:34px 18px}
-h1{font-size:24px;letter-spacing:6px;color:var(--accent);text-shadow:0 0 22px rgba(127,212,232,.25)}
-.sub{color:var(--dim);font-size:11px;letter-spacing:2.5px;margin-top:8px;text-transform:uppercase}
-#fridge{margin:22px 0;width:min(420px,92vw);background:linear-gradient(#d7dde2,#b9c2c9);border-radius:16px;padding:16px;box-shadow:0 18px 40px rgba(0,0,0,.5)}
-#inside{background:#f4f7f9;border-radius:10px;min-height:230px;padding:14px;display:flex;flex-wrap:wrap;gap:8px;align-content:flex-start;transition:background .5s}
-#inside.off{background:#2a3138}
-.item{font-size:30px;cursor:pointer;transition:transform .15s;position:relative}
-.item:hover{transform:scale(1.25)}
-.item .spoil{position:absolute;bottom:-2px;right:-2px;font-size:11px}
-#hud{display:flex;justify-content:space-between;margin-top:12px;font-size:11px;color:#3d4750;letter-spacing:1px;font-weight:700}
-#msg{font-size:12px;color:var(--dim);min-height:20px;letter-spacing:1px;text-align:center;line-height:1.8;width:min(440px,92vw)}
-#row{display:flex;gap:10px;margin:12px 0}
-button{cursor:pointer;background:var(--card);border:1px solid var(--line);border-radius:10px;color:var(--ink);font-family:inherit;font-size:12px;padding:11px 18px;letter-spacing:1px;transition:.15s}
-button:hover{border-color:var(--accent);transform:translateY(-2px)}
-#stats{margin-top:6px;font-size:11.5px;color:var(--dim);letter-spacing:1.5px}
-#stats b{color:var(--accent)}
+body{background:var(--bg);color:var(--ink);font-family:'DM Sans',system-ui,sans-serif;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:46px 18px 64px}
+h1{font-family:'DM Serif Display',serif;font-weight:400;font-size:36px}
+.sub{color:var(--dim);font-size:13.5px;margin-top:5px}
+#fridge{width:min(430px,92vw);margin:26px 0 18px;background:linear-gradient(105deg,#f7fafb,#dde7ea 60%,#cfdde1);border:1px solid #c3d3d8;border-radius:22px;padding:26px 22px 18px;position:relative;box-shadow:0 16px 34px rgba(23,48,58,.14)}
+#fridge::before{content:"";position:absolute;left:12px;top:34px;bottom:34px;width:7px;border-radius:4px;background:linear-gradient(#b9c9ce,#9fb4ba)}
+#inside{min-height:190px;background:linear-gradient(#ffffff,#eef6f8);border:1px solid var(--line);border-radius:14px;padding:18px;margin-left:14px;font-size:30px;line-height:1.7;box-shadow:inset 0 0 30px rgba(42,127,143,.08)}
+#inside div{margin:2px 0}
+#inside span{margin:0 3px}
+#hud{display:flex;justify-content:space-between;margin:14px 0 0 14px;font-size:11px;letter-spacing:1.8px;text-transform:uppercase;color:var(--teal);font-weight:700}
+#row{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+#row button{cursor:pointer;padding:12px 18px;border-radius:999px;border:1px solid var(--line);background:var(--card);color:var(--ink);font-family:inherit;font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;transition:all .15s}
+#row button:hover{border-color:var(--teal);color:var(--teal)}
+#add{background:var(--teal);border-color:var(--teal);color:#fff}
+#add:hover{background:#226975;color:#fff}
+#msg{margin-top:20px;font-style:italic;font-size:14px;color:var(--dim);max-width:480px;text-align:center;line-height:1.6}
+#stats{margin-top:14px;font-size:11px;letter-spacing:1.8px;text-transform:uppercase;color:var(--dim)}
+#stats b{color:var(--teal);margin:0 3px}
 </style>
 </head>
 <body>
-<h1>FRIDGE SIMULATOR</h1>
+<h1>Fridge Simulator</h1>
 <div class="sub">you are the fridge. keep the food alive.</div>
 <div id="fridge">
   <div id="inside"></div>
   <div id="hud"><span id="temp">TEMP 37°F</span><span id="light">LIGHT ON</span></div>
 </div>
 <div id="row">
-  <button id="add">STOCK GROCERIES</button>
-  <button id="door">SLAM DOOR</button>
-  <button id="colder">COLDER</button>
+  <button id="add">Stock groceries</button>
+  <button id="door">Slam door</button>
+  <button id="colder">Colder</button>
 </div>
 <div id="msg">a fridge hums. somewhere, a light debates its existence.</div>
 <div id="stats">ITEMS <b id="n">0</b> &middot; FRESH <b id="fresh">0</b> &middot; LOST <b id="lost">0</b></div>
